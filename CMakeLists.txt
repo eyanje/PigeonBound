@@ -10,6 +10,8 @@ if (WIN32)
 	
 	include_directories(${PROJECT_NAME} SDL2-2.0.9/include)
 	link_directories(${PROJECT_NAME} SDL2-2.0.9/build-windows)
+
+	include_directories(${PROJECT_NAME} stb)
 endif (WIN32)
 
 # Add all files in src/
