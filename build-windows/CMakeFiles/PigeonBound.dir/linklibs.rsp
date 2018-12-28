@@ -1,0 +1,1 @@
+ -LC:/Users/eyanj/programming/PigeonBound/PigeonBound  -LC:/Users/eyanj/programming/PigeonBound/glew-2.1.0/lib  -LC:/Users/eyanj/programming/PigeonBound/SDL2-2.0.9/build-windows -lmingw32 -lSDL2main -lSDL2 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
