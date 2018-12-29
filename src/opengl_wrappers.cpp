@@ -1,14 +1,24 @@
 #include "opengl_wrappers.hpp"
 
+#include <cstring>
+#include <fstream>
+#include <iostream>
 #include <sstream>
+#include <string>
 
+#include <GL/glew.h>
+#include <GL/gl.h>
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 glw::Buffer::Buffer(const GLenum target)
 : target(target) {
+    std::cout << "Creating buffer" << std::endl;
+    std::cout << (void *)glGenBuffers << std::endl;
     glGenBuffers(1, &id);
     glBindBuffer(target, id);
     glBindBuffer(target, 0);
+    std::cout << "Created buffer" << std::endl;
 }
 
 glw::Buffer::~Buffer() {
@@ -24,11 +34,14 @@ GLuint glw::Buffer::getId() const {
 }
 
 void glw::Buffer::setData(const void *data, const unsigned int size) {
-    std::memcpy(this->data.data, data, size);
+    std::cout << "Begin" << std::endl;
+    this->data.resize(size);
+    std::memcpy(this->data.data(), data, size);
 
     glBindBuffer(target, id);
     glBufferData(target, size, data, GL_STATIC_DRAW);
     glBindBuffer(target, 0);
+    std::cout << "End setData" << std::endl;
 }
 
 void *glw::Buffer::getData() {
@@ -37,11 +50,11 @@ void *glw::Buffer::getData() {
 
 glw::VAO::VAO()
 : vbo(GL_ARRAY_BUFFER) {
-    glGenVertexArrays(id);
+    glGenVertexArrays(1, &id);
 }
 
 glw::VAO::~VAO() {
-    glDeleteVertexArrays(id);
+    glDeleteVertexArrays(1, &id);
 }
 
 GLuint glw::VAO::getId() const {
@@ -53,49 +66,53 @@ void glw::VAO::setVertexData(const void *data, const unsigned int size) {
 }
 
 void glw::VAO::bind() const {
-    glBindVertexArrays(id);
+    glBindVertexArray(id);
     vbo.bind();
 }
 
 glw::Texture::Texture(const std::string path) {
+    std::cout << "Loading texture at " << path << std::endl;
+
     glGenTextures(1, &id);
 
-    const void* imgData = stbi_load(path, &width, &height, bytesPerPixel, 4);
+    void* imgData = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, 4);
     if (!imgData) {
         std::cerr << "Could not load image " << path << std::endl;
     }
 
     glBindTexture(GL_TEXTURE_2D, id);
 
-    glTextureData(GL_TEXTURE_2D,
+    glTexImage2D(GL_TEXTURE_2D,
     0, // level
     GL_RGBA, // internal format
     width, height,
     0, // border
     GL_RGBA, //format
     GL_UNSIGNED_BYTE,
-    data);
+    imgData);
 
-    stb_image_free(img_data);
+    stbi_image_free(imgData);
+
+    std::cout << "Loaded texture" << std::endl;
 }
 
 glw::Texture::~Texture() {
-    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &id);
 }
 
 GLuint glw::Texture::getId() const {
     return id;
 }
 
-unsigned int glw::Texture::getWidth() const {
+int glw::Texture::getWidth() const {
     return width;
 }
 
-unsigned int glw::Texture::getHeight() const {
+int glw::Texture::getHeight() const {
     return height;
 }
 
-unsigned int glw::Texture::getBytesPerPixel() const {
+int glw::Texture::getBytesPerPixel() const {
     return bytesPerPixel;
 }
 
@@ -105,17 +122,19 @@ void glw::Texture::bind() const {
 
 glw::Shader::Shader(const std::string path, GLenum shaderType)
 : id(glCreateShader(shaderType)) {
+    std::cout << "Creating shader at " << path << std::endl;
+
     std::ifstream fileStream(path);
     if (!fileStream.is_open()) {
         std::cerr << "Could not open shader " << path << std::endl;
     }
 
-    std::istringstream fileSStream;
+    std::ostringstream fileSStream;
     fileSStream << fileStream.rdbuf();
 
     std::string source = fileSStream.str();
 
-    GLchar *sourceChrArr = source.c_str();
+    const GLchar *sourceChrArr = source.c_str();
     glShaderSource(id,
     1, // count
     &sourceChrArr,
@@ -124,38 +143,53 @@ glw::Shader::Shader(const std::string path, GLenum shaderType)
 
     glCompileShader(id);
 
-    GLenum compileStatus;
+    GLint compileStatus;
     glGetShaderiv(id, GL_COMPILE_STATUS, &compileStatus);
     if(!compileStatus)
     {
         GLint maxLength = 0;
-    	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+    	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
 
         std::vector<char> infoLogVector;
-        glGetShaderInfoLog(vertex, maxLength, NULL, &infoLogVector[0]);
+        glGetShaderInfoLog(id, maxLength, NULL, &infoLogVector[0]);
         std::string infoLog(infoLogVector.begin(), infoLogVector.end());
         std::cout << "Error compiling shader at " << path << " " << infoLog << std::endl;
 
         glDeleteShader(id);
     }
+
+    std::cout << "Created shader" << std::endl;
 }
 
 glw::Shader::~Shader() {
-    glDeleteShader(shader);
+    glDeleteShader(id);
 }
 
 GLuint glw::Shader::getId() const {
     return id;
 }
 
+bool glw::Shader::operator<(const Shader &shader) const {
+    return id < shader.id;
+}
+
 glw::Program::Program()
 : id(glCreateProgram()) {
+    std::cout << "Created empty program" << std::endl;
 }
 
 glw::Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath)
 : id(glCreateProgram()) {
-    attachShader(vertexShaderPath);
-    attachShader(fragmentShaderPath);
+    std::cout << "Creating program" << std::endl;
+
+    use();
+
+    attachShader(vertexShaderPath, GL_VERTEX_SHADER);
+    attachShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
+
+    linkProgram();
+
+    std::cout << "Finished creating program" << std::endl;
 }
 
 glw::Program::~Program() {
@@ -164,15 +198,19 @@ glw::Program::~Program() {
     }
     shaders.clear();
 
-    glDeleteProgram(program);
+    glDeleteProgram(id);
 }
 
 void glw::Program::attachShader(const Shader &shader) {
-    glAttachShader(program.getId());
+    glAttachShader(id, shader.getId());
     shaders.insert(shader);
 }
 
-void glw::Program::linkProgram() const {
+void glw::Program::attachShader(const std::string path, const GLenum shaderType) {
+    attachShader(Shader(path, shaderType));
+}
+
+void glw::Program::linkProgram() {
     glLinkProgram(id);
     
     for (const Shader& s : shaders) {
@@ -181,24 +219,29 @@ void glw::Program::linkProgram() const {
     shaders.clear();
 }
 
-void glw::Program::use() {
+void glw::Program::use() const {
     glUseProgram(id);
 }
 
-GLuint glw::Program::getUniformLocation(std::string name) {
+GLuint glw::Program::getUniformLocation(const std::string name) {
     auto cachedLocation = locations.find(name);
     if (cachedLocation == locations.end()) {
-        GLint location = glGetUniformLocation(id, name);
+        GLint location = glGetUniformLocation(id, name.c_str());
+        // Cache the location
         locations[name] = location;
         return location;
     } else {
-        return *cachedLocation;
+        return (*cachedLocation).second;
     }
 }
 
-void glw::Program::uniform1i(std::string location, int v0) {
-    GLuint currProgram = 0;
-    glGetIntegeri_v(GL_CURRENT_PROGRAM, &currProgram);
+GLuint glw::Program::getUniformLocation(const std::string name) const {
+    return glGetUniformLocation(id, name.c_str());
+}
+
+void glw::Program::uniform1i(const std::string location, const int v0) const {
+    GLint currProgram = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
     if (id == currProgram) {
         std::cerr << "In uniform1i " << location << " " << v0 << ":" << std::endl;
         std::cerr << "Current program is not bound!" << std::endl;
@@ -209,9 +252,9 @@ void glw::Program::uniform1i(std::string location, int v0) {
     glUniform1i(getUniformLocation(location), v0);
 }
 
-void glw::Program::uniform2i(std::string location, int v0, int v1) {
-    GLuint currProgram = 0;
-    glGetIntegeri_v(GL_CURRENT_PROGRAM, &currProgram);
+void glw::Program::uniform2i(const std::string location, const int v0, const int v1) const {
+    GLint currProgram = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
     if (id == currProgram) {
         std::cerr << "In uniform1i " << location << " " << v0 << " " << v1 << ":" << std::endl;
         std::cerr << "Current program is not bound!" << std::endl;
@@ -219,5 +262,5 @@ void glw::Program::uniform2i(std::string location, int v0, int v1) {
         use();
     }
 
-    glUniform1i(getUniformLocation(location), v0, v1);
+    glUniform2i(getUniformLocation(location), v0, v1);
 }

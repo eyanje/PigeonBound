@@ -1,8 +1,13 @@
 #include "sprite.hpp"
 
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 #include "defines.h"
 
-Image::Image(std::string path)
+Image::Image(const std::string path)
 : subX(0), subY(0),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
@@ -10,6 +15,8 @@ texture(path),
 subWidth(texture.getWidth()),
 subHeight(texture.getHeight())
 {
+    std::cout << "Before creating image" << std::endl;
+
     int vertices[] {
         texture.getWidth(), 0,
         0, 0,
@@ -24,9 +31,11 @@ subHeight(texture.getHeight())
     };
     elementBuffer.setData(indices, sizeof(indices));
 
+    std::cout << "after creating image" << std::endl;
+
 }
 
-Image::Image(const unsigned width, const unsigned height)
+Image::Image(const std::string path, const unsigned width, const unsigned height)
 : subX(0), subY(0),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
@@ -49,7 +58,7 @@ subHeight(height)
     elementBuffer.setData(indices, sizeof(indices));
 }
 
-Image::Image(std::string path,
+Image::Image(const std::string path,
 const unsigned int xOffset, const unsigned int yOffset,
 const unsigned int width, const unsigned int height)
 : subX(xOffset), subY(yOffset),
@@ -87,8 +96,6 @@ const int width, const int height) const {
     glEnable(GL_TEXTURE_2D);
     texture.bind();
 
-    elementBuffer.bind();
-
     glVertexAttribPointer(0, // location
  	2, // 2 elents per coord
  	GL_INT,
@@ -96,6 +103,7 @@ const int width, const int height) const {
  	0, // stride
  	nullptr);
     
+    elementBuffer.bind();
     glVertexAttribPointer(1,
     2,
     GL_UNSIGNED_BYTE,
@@ -104,8 +112,8 @@ const int width, const int height) const {
     nullptr);
 
     program.uniform1i("textureSampler", 0);
-    program.uniform1i("screenSize", WIDTH, HEIGHT);
-    program.uniform1i("subCoords", subX, subY);
+    program.uniform2i("screenSize", WIDTH, HEIGHT);
+    program.uniform2i("subCoords", subX, subY);
     program.uniform2i("subSize", subWidth, subHeight);
     program.uniform2i("objPos", x, y);
     program.uniform2i("size", width, height);
@@ -119,7 +127,7 @@ Image &Animation::getCurrentImage() {
     return frames[frame];
 }
 
-Image &Animation::operator[](int frame) {
+Image &Animation::operator[](const int frame) {
     return frames[frame];
 }
 
@@ -140,50 +148,51 @@ const unsigned int width, const unsigned int height) {
 }
 
 void Animation::render(const int x, const int y) const {
-    frames[frame].render(x, y);
+    frames.at(frame).render(x, y);
 }
 
 void Animation::render(const int x, const int y, const int width, const int height) const {
-    frames[frame].render(x, y, width, height);
+    frames.at(frame).render(x, y, width, height);
 }
 
 void Animation::tick() {
     // subFrame = (subFrame + 1) % frameLengths[frame];
     // If the subframe is 0
-    if (!(subFrame = ((subFrame + 1) % frameLengths[frame]))) {
+    if (!(subFrame = ((subFrame + 1) % frameLengths.at(frame)))) {
         // Increase the frame number if necessary
         frame = (frame + 1) % frames.size();
     }
 }
 
-void Sprite::Sprite(std::string path) {
+Sprite::Sprite(const std::string path) {
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Cannot open image file " << path << std::endl;
     }
 
-    for (std::string line; getline(file, path);) {
+    for (std::string line; std::getline(file, line);) {
         std::istringstream tokenStream(line);
         char type;
         tokenStream >> type;
 
-        Animation* currAnimation = nullptr;
+        Animation* currAnimation_p = nullptr;
 
         switch (type) {
-            case 'a':
-                std::string name;
-                tokenStream >> name;
+            case 'a': {
+                    std::string name;
+                    tokenStream >> name;
 
-                if (!currAnimation) {
-                    // set global current animation to the first
-                    currentAnimation = name;
-                }
+                    if (!currAnimation_p) {
+                        // set global current animation to the first
+                        currentAnimation = name;
+                    }
 
-                // Creates a new animation
-                // Refers to the old animation if it exists
-                currAnimation = animations[name];
-                break;
-            case 'i':
+                    // Creates a new animation
+                    // Refers to the old animation if it exists
+                    currAnimation_p = &animations[name];
+                    break;
+            }
+            case 'i': {
                 unsigned int length = 1;
                 tokenStream >> length;
 
@@ -192,7 +201,7 @@ void Sprite::Sprite(std::string path) {
 
                 // Create image of just length and path
                 if (tokenStream.eof()) {
-                    currAnimation.addFrame(length, path);
+                    currAnimation_p->addFrame(length, path);
                     break;
                 }
 
@@ -202,7 +211,7 @@ void Sprite::Sprite(std::string path) {
                 tokenStream >> t0;
                 tokenStream >> t1;
                 if (tokenStream.eof()) {
-                    currAnimation.addFrame(length, path, t0, t1);
+                    currAnimation_p->addFrame(length, path, t0, t1);
                     break;
                 }
                 
@@ -211,8 +220,48 @@ void Sprite::Sprite(std::string path) {
                 unsigned int t3 = 1;
                 tokenStream >> t2;
                 tokenStream >> t3;
-                currAnimation.addFrame(length, path, t0, t1, t2, t3);
+                currAnimation_p->addFrame(length, path, t0, t1, t2, t3);
                 break;
+            }
         }
+    }
+}
+
+void Sprite::render(const int x, const int y) const {
+    if (animations.find(currentAnimation) == animations.end()) {
+        std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
+        std::cerr << "Animation list: ";
+        for (auto pair : animations) {
+            std::cout << pair.first << " ";
+        }
+        std::cout << std::endl;
+    } else {
+        animations.at(currentAnimation).render(x, y);
+    }
+}
+
+void Sprite::render(const int x, const int y, const int width, const int height) const {
+    if (animations.find(currentAnimation) == animations.end()) {
+        std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
+        std::cerr << "Animation list: ";
+        for (auto pair : animations) {
+            std::cout << pair.first << " ";
+        }
+        std::cout << std::endl;
+    } else {
+        animations.at(currentAnimation).render(x, y, width, height);
+    }
+}
+
+void Sprite::tick() {
+    if (animations.find(currentAnimation) == animations.end()) {
+        std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
+        std::cerr << "Animation list: ";
+        for (auto pair : animations) {
+            std::cout << pair.first << " ";
+        }
+        std::cout << std::endl;
+    } else {
+        animations.at(currentAnimation).tick();
     }
 }

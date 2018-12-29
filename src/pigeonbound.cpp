@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <SDL.h>
 
+#include "defines.h"
 #include "gamemode.hpp"
 
 SDL_Window *window = nullptr;
@@ -14,28 +15,56 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    char *sdlError = SDL_GetError();
+    if (sdlError) {
+        std::cout << "SDL Error " << sdlError << std::endl;
+    }
+
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     // Create SDL window
     window = SDL_CreateWindow("PigeonBound",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        320,
-        180,
+        WIDTH,
+        HEIGHT,
         SDL_WINDOW_OPENGL);
+    if (!window) {
+        std::cerr << "Failed to create window" << std::endl;
+    }
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
     
+    sdlError = SDL_GetError();
+    if (sdlError) {
+        std::cout << "SDL Error " << sdlError << std::endl;
+    }
+
+    glewExperimental = true;
     GLenum glewInitError = glewInit();
     if (glewInitError != GLEW_OK) {
         std::cerr << "Failed to init glew " << glewGetErrorString(glewInitError) << std::endl;
-        return 1;
+        
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
+    }
+    if (!glGenBuffers) {
+        std::cerr << "GLEW still failed" << std::endl;
+        
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
     }
 
     bool running = true;
+    std::cout << "Construction GameMode" << std::endl;
+
     gameMode = new TitleGameMode();
 
     while (running) {
@@ -43,7 +72,9 @@ int main(int argc, char *argv[]) {
         // Switch to the next gamemode, if necessary
         GameMode *nextGameMode = gameMode->nextGameMode();
         if (nextGameMode) {
-            delete gameMode;
+            if (gameMode) {
+                delete gameMode;
+            }
             gameMode = nextGameMode;
         }
 
@@ -68,7 +99,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    delete gameMode;
+    if (gameMode) {
+        delete gameMode;
+    }
     
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <GL/glew.h>
+#include <GL/gl.h>
 
 namespace glw {
 
@@ -17,10 +18,11 @@ class Buffer {
         std::vector<char> data;
     public:
         Buffer(const GLenum target);
+        ~Buffer();
         void bind() const;
         GLuint getId() const;
         void *getData();
-        void setData(void *data, unsigned int size);
+        void setData(const void *data, const unsigned int size);
 };
 
 class VAO {
@@ -38,16 +40,17 @@ class VAO {
 class Texture {
     private:
         GLuint id;
-        unsigned int width;
-        unsigned int height;
-        unsigned int bytesPerPixel;
+        int width;
+        int height;
+        int bytesPerPixel;
     public:
         Texture(const std::string path);
         ~Texture();
         GLuint getId() const;
-        unsigned int getWidth() const;
-        unsigned int getHeight() const;
-        unsigned int getBytesPerPixel() const;
+
+        int getWidth() const;
+        int getHeight() const;
+        int getBytesPerPixel() const;
         void bind() const;
 };
 
@@ -55,9 +58,11 @@ class Shader {
     private:
         GLuint id;
     public:
-        Shader(const std::string path);
+        Shader(const std::string path, GLenum shaderType);
         ~Shader();
         GLuint getId() const;
+
+        bool operator<(const Shader &shader) const;
 };
 
 class Program {
@@ -68,14 +73,16 @@ class Program {
     public:
         Program();
         Program(std::string vertexShaderPath, std::string fragmentShaderPath);
-        Program::~Program();
+        ~Program();
         void attachShader(const Shader &shader);
+        void attachShader(const std::string path, const GLenum shaderType);
         void linkProgram();
-        void use();
+        void use() const;
 
-        GLuint getUniformLocation(std::string name);
-        void uniform1i(std::string location, int v0);
-        void uniform2i(std::string location, int v0, int v1);
+        GLuint getUniformLocation(const std::string name);
+        GLuint getUniformLocation(const std::string name) const;
+        void uniform1i(const std::string location, const int v0) const;
+        void uniform2i(const std::string location, const int v0, const int v1) const;
 };
 
 }

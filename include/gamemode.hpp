@@ -3,6 +3,8 @@
 
 #include <SDL_events.h>
 
+#include "sprite.hpp"
+
 class GameMode {
     public:
         GameMode() {}
@@ -16,6 +18,7 @@ class GameMode {
 class TitleGameMode : public GameMode {
     private:
         bool transition;
+        Sprite background;
     public:
         TitleGameMode();
         ~TitleGameMode();
