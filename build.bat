@@ -5,5 +5,5 @@ mingw32-make
 popd
 move build-windows\PigeonBound.exe game\PigeonBound.exe
 pushd game
-.\PigeonBound
+gdb .\PigeonBound
 popd

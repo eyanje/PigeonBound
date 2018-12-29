@@ -17,6 +17,8 @@ endif (WIN32)
 # Add all files in src/
 file (GLOB SOURCES src/*)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} mingw32)
