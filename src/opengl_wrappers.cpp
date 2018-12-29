@@ -7,7 +7,7 @@
 #include <string>
 
 #include <GL/glew.h>
-#include <GL/gl.h>
+#include <SDL_opengl.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -150,8 +150,8 @@ glw::Shader::Shader(const std::string path, GLenum shaderType)
         GLint maxLength = 0;
     	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
 
-        std::vector<char> infoLogVector;
-        glGetShaderInfoLog(id, maxLength, NULL, &infoLogVector[0]);
+        std::vector<char> infoLogVector(maxLength);
+        glGetShaderInfoLog(id, maxLength, nullptr, &infoLogVector[0]);
         std::string infoLog(infoLogVector.begin(), infoLogVector.end());
         std::cout << "Error compiling shader at " << path << " " << infoLog << std::endl;
 

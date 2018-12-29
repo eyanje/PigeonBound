@@ -4,7 +4,7 @@
 
 #include <SDL_events.h>
 #include <GL/glew.h>
-#include <GL/gl.h>
+#include <SDL_opengl.h>
 
 TitleGameMode::TitleGameMode()
 : transition(false),

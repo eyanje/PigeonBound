@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <GL/glew.h>
+#include <SDL_opengl.h>
 #include <SDL.h>
 
 #include "defines.h"
@@ -15,15 +16,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char *sdlError = SDL_GetError();
-    if (sdlError) {
+    const char *sdlError = SDL_GetError();
+    if (sdlError && *sdlError) {
         std::cout << "SDL Error " << sdlError << std::endl;
     }
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
     // Create SDL window
     window = SDL_CreateWindow("PigeonBound",
@@ -37,9 +39,15 @@ int main(int argc, char *argv[]) {
     }
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    if (!glContext) {
+        std::cerr << "Failed to create SDL GL context!" << std::endl;
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
+    }
     
     sdlError = SDL_GetError();
-    if (sdlError) {
+    if (sdlError && *sdlError) {
         std::cout << "SDL Error " << sdlError << std::endl;
     }
 

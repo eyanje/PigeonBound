@@ -5,6 +5,9 @@
 #include <sstream>
 #include <string>
 
+#include <GL/glew.h>
+#include <SDL_opengl.h>
+
 #include "defines.h"
 
 Image::Image(const std::string path)
@@ -124,7 +127,7 @@ const int width, const int height) const {
 }
 
 Image &Animation::getCurrentImage() {
-    return frames[frame];
+    return frames.at(frame);
 }
 
 Image &Animation::operator[](const int frame) {
@@ -132,18 +135,18 @@ Image &Animation::operator[](const int frame) {
 }
 
 void Animation::addFrame(const unsigned int length, const std::string path) {
-    frames.push_back(Image(path));
+    frames.emplace_back(path);
     frameLengths.push_back(length);
 }
 void Animation::addFrame(const unsigned int length, const std::string path,
 const unsigned int width, const unsigned int height) {
-    frames.push_back(Image(path, width, height));
+    frames.emplace_back(path, width, height);
     frameLengths.push_back(length);
 }
 void Animation::addFrame(const unsigned int length, const std::string path,
 const unsigned int x, const unsigned int y,
 const unsigned int width, const unsigned int height) {
-    frames.push_back(Image(path, x, y, width, height));
+    frames.emplace_back(path, x, y, width, height);
     frameLengths.push_back(length);
 }
 
@@ -170,17 +173,18 @@ Sprite::Sprite(const std::string path) {
         std::cerr << "Cannot open image file " << path << std::endl;
     }
 
+    Animation* currAnimation_p = nullptr;
     for (std::string line; std::getline(file, line);) {
         std::istringstream tokenStream(line);
         char type;
         tokenStream >> type;
 
-        Animation* currAnimation_p = nullptr;
-
         switch (type) {
             case 'a': {
                     std::string name;
                     tokenStream >> name;
+
+                    std::cout << "Creating animation " << name << std::endl;
 
                     if (!currAnimation_p) {
                         // set global current animation to the first
@@ -189,10 +193,20 @@ Sprite::Sprite(const std::string path) {
 
                     // Creates a new animation
                     // Refers to the old animation if it exists
-                    currAnimation_p = &animations[name];
+                    currAnimation_p = &(animations[name]);
+
+                    if (!currAnimation_p) {
+                        std::cout << "Could not set currAnimation_p to " << name << std::endl; 
+                    }
                     break;
             }
             case 'i': {
+                if (!currAnimation_p) {
+                    std::cerr << "In line " << line << std::endl;
+                    std::cerr << "Image inserted before animation!" << std::endl;
+                    break;
+                }
+
                 unsigned int length = 1;
                 tokenStream >> length;
 

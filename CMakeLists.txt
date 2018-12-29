@@ -23,4 +23,4 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} mingw32)
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2)
-target_link_libraries(${PROJECT_NAME} opengl32 glew32)
+target_link_libraries(${PROJECT_NAME} opengl32 glu32 glew32)
