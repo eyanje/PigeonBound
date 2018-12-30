@@ -9,6 +9,7 @@
 class Image {
     private:
         glw::VAO vao;
+        glw::Buffer uvBuffer;
         glw::Buffer elementBuffer;
         glw::Program program;
         glw::Texture texture;

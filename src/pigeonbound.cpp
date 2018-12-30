@@ -90,6 +90,11 @@ int main(int argc, char *argv[]) {
         gameMode->update();
         gameMode->render();
 
+        GLenum error = glGetError();
+        if (error) {
+            std::cerr << "Error in main loop " << error << std::endl;
+        }
+
         SDL_GL_SwapWindow(window);
 
         SDL_Delay(17);

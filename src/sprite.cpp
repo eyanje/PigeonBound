@@ -12,14 +12,13 @@
 
 Image::Image(const std::string path)
 : subX(0), subY(0),
+uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
 texture(path),
 subWidth(texture.getWidth()),
 subHeight(texture.getHeight())
 {
-    std::cout << "Before creating image" << std::endl;
-
     int vertices[] {
         texture.getWidth(), 0,
         0, 0,
@@ -28,18 +27,25 @@ subHeight(texture.getHeight())
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
+    constexpr float uvs[] {
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1
+    };
+    uvBuffer.setData(uvs, sizeof(uvs));
+
     constexpr unsigned char indices[] {
         0, 1, 2,
         0, 2, 3
     };
     elementBuffer.setData(indices, sizeof(indices));
 
-    std::cout << "after creating image" << std::endl;
-
 }
 
 Image::Image(const std::string path, const unsigned width, const unsigned height)
 : subX(0), subY(0),
+uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
 texture(path),
@@ -53,6 +59,14 @@ subHeight(height)
         height, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
+
+    constexpr float uvs[] {
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1
+    };
+    uvBuffer.setData(uvs, sizeof(uvs));
 
     constexpr unsigned char indices[] {
         0, 1, 2,
@@ -65,6 +79,7 @@ Image::Image(const std::string path,
 const unsigned int xOffset, const unsigned int yOffset,
 const unsigned int width, const unsigned int height)
 : subX(xOffset), subY(yOffset),
+uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
 texture(path),
@@ -78,6 +93,14 @@ subHeight(height)
         height, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
+
+    constexpr float uvs[] {
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1
+    };
+    uvBuffer.setData(uvs, sizeof(uvs));
 
     constexpr unsigned char indices[] {
         0, 1, 2,
@@ -92,27 +115,59 @@ void Image::render(const int x, const int y) const {
 
 void Image::render(const int x, const int y,
 const int width, const int height) const {
-    vao.bind();
+
+    GLenum error;
+    
+    while (error = glGetError()) {
+        std::cerr << "Error before rendering image " << error << std::endl;
+    }
+    /*
+    To test the image, you may write something like this:
+    glGetError();
+    glColor3f(0, 0, 0);
+    while (error = glGetError()) {
+        std::cerr << "Error with color3f " << error << std::endl;
+    }
+    glRecti(x, y, x+width, y+height);
+    while (error = glGetError()) {
+        std::cerr << "Error with test rect " << error << std::endl;
+    }
+    Although it generates errors on some systems
+    */
+
     program.use();
     
     glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
+    // Throws 1280, probably because of modern opengl
+    // glEnable(GL_TEXTURE_2D);
+    while (error = glGetError()) {
+        std::cerr << "Unable to enable textures " << error << std::endl;
+    }
+
     texture.bind();
 
+    vao.bind();
     glVertexAttribPointer(0, // location
- 	2, // 2 elents per coord
- 	GL_INT,
+ 	2, // 2 elements per coord
+ 	GL_UNSIGNED_INT,
  	GL_FALSE,
  	0, // stride
  	nullptr);
+
+    while (error = glGetError()) {
+        std::cerr << "Error passing vertex attrib pointers " << error << std::endl;
+    }
     
-    elementBuffer.bind();
-    glVertexAttribPointer(1,
+    uvBuffer.bind();
+    glVertexAttribPointer(1, // location of uvs
     2,
-    GL_UNSIGNED_BYTE,
+    GL_FLOAT,
     GL_FALSE,
     0, // stride
     nullptr);
+    while (error = glGetError()) {
+        std::cerr << "Error passing uv attrib pointers " << error << std::endl;
+    }
 
     program.uniform1i("textureSampler", 0);
     program.uniform2i("screenSize", WIDTH, HEIGHT);
@@ -121,9 +176,27 @@ const int width, const int height) const {
     program.uniform2i("objPos", x, y);
     program.uniform2i("size", width, height);
 
+    while (error = glGetError()) {
+        std::cerr << "Error passing all image uniforms " << error << std::endl;
+    }
+
+    elementBuffer.bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, nullptr);
 
-    glDisable(GL_TEXTURE_2D);
+    while (error = glGetError()) {
+        std::cerr << "Error drawing elements " << error << std::endl;
+    }
+
+    // Don't know why but this throws 1280
+    // glDisable(GL_TEXTURE_2D);
+    glUseProgram(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    while (error = glGetError()) {
+        std::cerr << "Error disabling and unbinding " << error << std::endl;
+    }
 }
 
 Image &Animation::getCurrentImage() {
@@ -183,8 +256,6 @@ Sprite::Sprite(const std::string path) {
             case 'a': {
                     std::string name;
                     tokenStream >> name;
-
-                    std::cout << "Creating animation " << name << std::endl;
 
                     if (!currAnimation_p) {
                         // set global current animation to the first

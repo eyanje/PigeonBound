@@ -13,20 +13,36 @@
 
 glw::Buffer::Buffer(const GLenum target)
 : target(target) {
-    std::cout << "Creating buffer" << std::endl;
-    std::cout << (void *)glGenBuffers << std::endl;
     glGenBuffers(1, &id);
     glBindBuffer(target, id);
     glBindBuffer(target, 0);
-    std::cout << "Created buffer" << std::endl;
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error creating buffer " << error << std::endl;
+    }
 }
 
 glw::Buffer::~Buffer() {
     glDeleteBuffers(1, &id);
+    
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error deleting buffer " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Deleted buffer at " << id << std::endl;
+    }
 }
 
 void glw::Buffer::bind() const {
     glBindBuffer(target, id);
+    
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error binding buffer " << error << std::endl;
+    }
 }
 
 GLuint glw::Buffer::getId() const {
@@ -34,14 +50,17 @@ GLuint glw::Buffer::getId() const {
 }
 
 void glw::Buffer::setData(const void *data, const unsigned int size) {
-    std::cout << "Begin" << std::endl;
     this->data.resize(size);
     std::memcpy(this->data.data(), data, size);
 
     glBindBuffer(target, id);
     glBufferData(target, size, data, GL_STATIC_DRAW);
     glBindBuffer(target, 0);
-    std::cout << "End setData" << std::endl;
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error setting data " << error << std::endl;
+    }
 }
 
 void *glw::Buffer::getData() {
@@ -51,10 +70,24 @@ void *glw::Buffer::getData() {
 glw::VAO::VAO()
 : vbo(GL_ARRAY_BUFFER) {
     glGenVertexArrays(1, &id);
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Erorr creating vao " << error << std::endl;
+    }
 }
 
 glw::VAO::~VAO() {
     glDeleteVertexArrays(1, &id);
+
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error deleting VAO " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Deleted VAO at " << id << std::endl;
+    }
 }
 
 GLuint glw::VAO::getId() const {
@@ -67,6 +100,16 @@ void glw::VAO::setVertexData(const void *data, const unsigned int size) {
 
 void glw::VAO::bind() const {
     glBindVertexArray(id);
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error binding VAO " << id << " " << error << std::endl;
+        if (glIsVertexArray(id)) {
+            std::cerr << "VAO is valid" << std::endl;
+        } else {
+            std::cerr << "VAO is invalid" << std::endl;
+        }
+    }
+
     vbo.bind();
 }
 
@@ -93,11 +136,23 @@ glw::Texture::Texture(const std::string path) {
 
     stbi_image_free(imgData);
 
-    std::cout << "Loaded texture" << std::endl;
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error loading texture at " << path << " " << error << std::endl;
+    }
 }
 
 glw::Texture::~Texture() {
     glDeleteTextures(1, &id);
+
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error deleting texture " << id << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Deleted texture at " << id << std::endl;
+    }
 }
 
 GLuint glw::Texture::getId() const {
@@ -118,12 +173,15 @@ int glw::Texture::getBytesPerPixel() const {
 
 void glw::Texture::bind() const {
     glBindTexture(GL_TEXTURE_2D, id);
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error binding texture " << id << " " << error << std::endl;
+    }
 }
 
 glw::Shader::Shader(const std::string path, GLenum shaderType)
 : id(glCreateShader(shaderType)) {
-    std::cout << "Creating shader at " << path << std::endl;
-
     std::ifstream fileStream(path);
     if (!fileStream.is_open()) {
         std::cerr << "Could not open shader " << path << std::endl;
@@ -153,16 +211,28 @@ glw::Shader::Shader(const std::string path, GLenum shaderType)
         std::vector<char> infoLogVector(maxLength);
         glGetShaderInfoLog(id, maxLength, nullptr, &infoLogVector[0]);
         std::string infoLog(infoLogVector.begin(), infoLogVector.end());
-        std::cout << "Error compiling shader at " << path << " " << infoLog << std::endl;
+        std::cerr << "Error compiling shader at " << path << " " << infoLog << std::endl;
 
         glDeleteShader(id);
     }
 
-    std::cout << "Created shader" << std::endl;
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error creating shader at " << path << " " << error << std::endl;
+    }
 }
 
 glw::Shader::~Shader() {
     glDeleteShader(id);
+
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error deleting shader " << id << " " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Deleted shader " << id << std::endl;
+    }
 }
 
 GLuint glw::Shader::getId() const {
@@ -175,52 +245,108 @@ bool glw::Shader::operator<(const Shader &shader) const {
 
 glw::Program::Program()
 : id(glCreateProgram()) {
-    std::cout << "Created empty program" << std::endl;
+    std::cout << "Created empty program " << id << std::endl;
 }
 
 glw::Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath)
 : id(glCreateProgram()) {
-    std::cout << "Creating program" << std::endl;
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error creating program " << id << " " << error << std::endl;
+    }
 
-    use();
-
-    attachShader(vertexShaderPath, GL_VERTEX_SHADER);
-    attachShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
+    Shader vertex(vertexShaderPath, GL_VERTEX_SHADER);
+    attachShader(vertex);
+    Shader fragment(fragmentShaderPath, GL_FRAGMENT_SHADER);
+    attachShader(fragment);
 
     linkProgram();
 
-    std::cout << "Finished creating program" << std::endl;
+    error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error creating whole program " << id << " " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Successfully created program " << id << std::endl;
+    }
 }
 
 glw::Program::~Program() {
-    for (const Shader& s : shaders) {
-        glDetachShader(id, s.getId());
+    for (const Shader  *s : shaders) {
+        glDetachShader(id, s->getId());
+        
+        GLenum error;
+        while (error = glGetError()) {
+            std::cerr << "Error detaching shader " << s->getId() << " " << error << std::endl;
+        }
     }
     shaders.clear();
 
     glDeleteProgram(id);
+
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error deleting program " << id << " " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Deleted program " << id << std::endl;
+    }
 }
 
-void glw::Program::attachShader(const Shader &shader) {
+void glw::Program::attachShader(Shader &shader) {
     glAttachShader(id, shader.getId());
-    shaders.insert(shader);
-}
+    shaders.insert(&shader);
 
-void glw::Program::attachShader(const std::string path, const GLenum shaderType) {
-    attachShader(Shader(path, shaderType));
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error attaching shader " << shader.getId() << " " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Attached shader " << shader.getId() << " to program " << id << std::endl;
+    }
 }
 
 void glw::Program::linkProgram() {
+
     glLinkProgram(id);
     
-    for (const Shader& s : shaders) {
-        glDetachShader(id, s.getId());
+    GLenum error = glGetError();
+    if (error) {
+        do {
+            std::cerr << "Error linking program " << id << " " << error << std::endl;
+        } while (error = glGetError());
+    } else {
+        std::cout << "Linked program " << id << std::endl;
+    }
+
+    for (const Shader* s : shaders) {
+        glDetachShader(id, s->getId());
+        while (error = glGetError()) {
+            std::cerr << "Error detaching shader " << s->getId() << " " << error << std::endl;
+        }
     }
     shaders.clear();
+
+    while (error = glGetError()) {
+        std::cerr << "Error clearing shaders " << error << std::endl;
+    }
 }
 
 void glw::Program::use() const {
     glUseProgram(id);
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error using program " << id << " " << error << std::endl;
+        if (glIsProgram(id)) {
+            std::cerr << "Program is valid" << std::endl;
+        } else {
+            std::cerr << "Program is invalid" << std::endl;
+        }
+    }
 }
 
 GLuint glw::Program::getUniformLocation(const std::string name) {
@@ -242,25 +368,35 @@ GLuint glw::Program::getUniformLocation(const std::string name) const {
 void glw::Program::uniform1i(const std::string location, const int v0) const {
     GLint currProgram = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
-    if (id == currProgram) {
+    if (id != currProgram) {
         std::cerr << "In uniform1i " << location << " " << v0 << ":" << std::endl;
-        std::cerr << "Current program is not bound!" << std::endl;
+        std::cerr << "Current program " << id << " is not bound! Instead " << currProgram << std::endl;
         std::cout << "Binding current program..." << std::endl;
         use();
     }
 
     glUniform1i(getUniformLocation(location), v0);
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error uniform1i " << location << " " << v0 << " " << error << std::endl;
+    }
 }
 
 void glw::Program::uniform2i(const std::string location, const int v0, const int v1) const {
     GLint currProgram = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
-    if (id == currProgram) {
-        std::cerr << "In uniform1i " << location << " " << v0 << " " << v1 << ":" << std::endl;
-        std::cerr << "Current program is not bound!" << std::endl;
+    if (id != currProgram) {
+        std::cerr << "In uniform2i " << location << " " << v0 << " " << v1 << ":" << std::endl;
+        std::cerr << "Current program " << id << " is not bound! Instead " << currProgram << std::endl;
         std::cout << "Binding current program..." << std::endl;
         use();
     }
 
     glUniform2i(getUniformLocation(location), v0, v1);
+
+    GLenum error;
+    while (error = glGetError()) {
+        std::cerr << "Error uniform2i " << location << " " << v0 << " " << v1 << " " << error << std::endl;
+    }
 }

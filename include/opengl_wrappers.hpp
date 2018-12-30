@@ -68,14 +68,13 @@ class Shader {
 class Program {
     private:
         GLuint id;
-        std::set<Shader> shaders;
+        std::set<Shader *> shaders;
         std::map<std::string, GLint> locations;
     public:
         Program();
         Program(std::string vertexShaderPath, std::string fragmentShaderPath);
         ~Program();
-        void attachShader(const Shader &shader);
-        void attachShader(const std::string path, const GLenum shaderType);
+        void attachShader(Shader &shader);
         void linkProgram();
         void use() const;
 
