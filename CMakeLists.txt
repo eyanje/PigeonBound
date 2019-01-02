@@ -15,12 +15,16 @@ if (WIN32)
 	link_directories(${PROJECT_NAME} SDL2_mixer-2.0.4-windows/i686-w64-mingw32/lib)
 
 	include_directories(${PROJECT_NAME} stb)
+
+	SET (CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,windows)
+	SET (CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_RELEASE} -mwindows)
+
 endif (WIN32)
 
 # Add all files in src/
 file (GLOB SOURCES src/*)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
