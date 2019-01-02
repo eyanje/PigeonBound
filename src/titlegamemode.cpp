@@ -5,14 +5,23 @@
 #include <SDL_events.h>
 #include <GL/glew.h>
 #include <SDL_opengl.h>
+#include <SDL_mixer.h>
 
 TitleGameMode::TitleGameMode()
 : transition(false),
-background("sprites/title/title.spr") {
+background("sprites/title/title.spr"),
+bgMusic(Mix_LoadMUS("audio/title.ogg")) {
+    if (!bgMusic) {
+        std::cerr << "Unable to load background music! " << Mix_GetError() << std::endl;
+    } else if (Mix_PlayMusic(bgMusic, -1) == -1) {
+        std::cerr << "Unable to play music! " << Mix_GetError() << std::endl;
+    }
+
     std::cout << "Successfully created Title GameMode" << std::endl;
 }
 
 TitleGameMode::~TitleGameMode() {
+    Mix_FreeMusic(bgMusic);
 
 }
 

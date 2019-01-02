@@ -5,9 +5,12 @@
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 
+#include "defines.h"
+
 MenuGameMode::MenuGameMode()
 : selection(0),
-transition(false) {
+transition(false),
+arrow("sprites/title/title.png") {
 
 }
 
@@ -62,4 +65,5 @@ void MenuGameMode::update() {
 void MenuGameMode::render() const {
     glClearColor(0, 1, 0.5, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+    arrow.render(0, selection * HEIGHT / 2);
 }

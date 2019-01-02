@@ -2,6 +2,7 @@
 #define GAMEMODE_HPP
 
 #include <SDL_events.h>
+#include <SDL_mixer.h>
 
 #include "sprite.hpp"
 
@@ -19,6 +20,7 @@ class TitleGameMode : public GameMode {
     private:
         bool transition;
         Sprite background;
+        Mix_Music *bgMusic;
     public:
         TitleGameMode();
         ~TitleGameMode();
@@ -32,6 +34,7 @@ class MenuGameMode : public GameMode {
     private:
         int selection;
         bool transition;
+        Image arrow;
     public:
         MenuGameMode();
         ~MenuGameMode();

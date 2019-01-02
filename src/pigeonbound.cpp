@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 #include "defines.h"
 #include "gamemode.hpp"
@@ -70,8 +71,30 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    // Load audio system
+
+    int flags = MIX_INIT_OGG;
+    if (Mix_Init(flags) != flags) {
+        std::cerr << "Failed to init audio: " << Mix_GetError() << std::endl;
+        Mix_Quit();
+            
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+        
+        SDL_Quit();
+        return 0;
+    }
+    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+        std::cerr << "Failed to open audio: " << Mix_GetError() << std::endl;
+        Mix_Quit();
+            
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+        
+        SDL_Quit();
+    }
+
     bool running = true;
-    std::cout << "Construction GameMode" << std::endl;
 
     gameMode = new TitleGameMode();
 
@@ -116,8 +139,12 @@ int main(int argc, char *argv[]) {
         delete gameMode;
     }
     
+    Mix_CloseAudio();
+    Mix_Quit();
+    
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
+    
     SDL_Quit();
 
     return 0;
