@@ -71,6 +71,10 @@ glw::VAO::VAO()
 : vbo(GL_ARRAY_BUFFER) {
     glGenVertexArrays(1, &id);
 
+    glBindVertexArray(id);
+    vbo.bind();
+    glBindVertexArray(0);
+
     GLenum error;
     while (error = glGetError()) {
         std::cerr << "Erorr creating vao " << error << std::endl;
@@ -118,7 +122,7 @@ glw::Texture::Texture(const std::string path) {
 
     glGenTextures(1, &id);
 
-    void* imgData = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, 4);
+    stbi_uc *imgData = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, 4);
     if (!imgData) {
         std::cerr << "Could not load image " << path << std::endl;
     }
@@ -134,7 +138,12 @@ glw::Texture::Texture(const std::string path) {
     GL_UNSIGNED_BYTE,
     imgData);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     stbi_image_free(imgData);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     GLenum error;
     while (error = glGetError()) {
@@ -143,6 +152,7 @@ glw::Texture::Texture(const std::string path) {
 }
 
 glw::Texture::~Texture() {
+
     glDeleteTextures(1, &id);
 
     GLenum error = glGetError();
@@ -362,6 +372,10 @@ GLuint glw::Program::getUniformLocation(const std::string name) {
 }
 
 GLuint glw::Program::getUniformLocation(const std::string name) const {
+    auto cachedLocation = locations.find(name);
+    if (cachedLocation != locations.cend()) {
+        return (*cachedLocation).second;
+    }
     return glGetUniformLocation(id, name.c_str());
 }
 

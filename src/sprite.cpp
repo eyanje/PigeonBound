@@ -19,11 +19,11 @@ texture(path),
 subWidth(texture.getWidth()),
 subHeight(texture.getHeight())
 {
-    int vertices[] {
-        texture.getWidth(), 0,
+    unsigned int vertices[] {
+        static_cast<unsigned int>(texture.getWidth()), 0,
         0, 0,
-        0, texture.getHeight(),
-        texture.getWidth(), texture.getHeight()
+        0, static_cast<unsigned int>(texture.getHeight()),
+        static_cast<unsigned int>(texture.getWidth()), static_cast<unsigned int>(texture.getHeight())
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
@@ -43,7 +43,7 @@ subHeight(texture.getHeight())
 
 }
 
-Image::Image(const std::string path, const unsigned width, const unsigned height)
+Image::Image(const std::string path, const unsigned int width, const unsigned int height)
 : subX(0), subY(0),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
@@ -121,32 +121,14 @@ const int width, const int height) const {
     while (error = glGetError()) {
         std::cerr << "Error before rendering image " << error << std::endl;
     }
-    /*
-    To test the image, you may write something like this:
-    glGetError();
-    glColor3f(0, 0, 0);
-    while (error = glGetError()) {
-        std::cerr << "Error with color3f " << error << std::endl;
-    }
-    glRecti(x, y, x+width, y+height);
-    while (error = glGetError()) {
-        std::cerr << "Error with test rect " << error << std::endl;
-    }
-    Although it generates errors on some systems
-    */
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     program.use();
-    
-    glActiveTexture(GL_TEXTURE0);
-    // Throws 1280, probably because of modern opengl
-    // glEnable(GL_TEXTURE_2D);
-    while (error = glGetError()) {
-        std::cerr << "Unable to enable textures " << error << std::endl;
-    }
-
-    texture.bind();
-
     vao.bind();
+
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, // location
  	2, // 2 elements per coord
  	GL_UNSIGNED_INT,
@@ -159,6 +141,7 @@ const int width, const int height) const {
     }
     
     uvBuffer.bind();
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, // location of uvs
     2,
     GL_FLOAT,
@@ -168,6 +151,9 @@ const int width, const int height) const {
     while (error = glGetError()) {
         std::cerr << "Error passing uv attrib pointers " << error << std::endl;
     }
+    
+    glActiveTexture(GL_TEXTURE0);
+    texture.bind();
 
     program.uniform1i("textureSampler", 0);
     program.uniform2i("screenSize", WIDTH, HEIGHT);
@@ -193,9 +179,12 @@ const int width, const int height) const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 
     while (error = glGetError()) {
-        std::cerr << "Error disabling and unbinding " << error << std::endl;
+        std::cerr << "Error unbinding " << error << std::endl;
     }
 }
 
@@ -211,6 +200,7 @@ void Animation::addFrame(const unsigned int length, const std::string path) {
     frames.emplace_back(path);
     frameLengths.push_back(length);
 }
+
 void Animation::addFrame(const unsigned int length, const std::string path,
 const unsigned int width, const unsigned int height) {
     frames.emplace_back(path, width, height);

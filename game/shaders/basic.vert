@@ -3,14 +3,19 @@
 layout(location = 0) in vec2 point_location;
 layout(location = 1) in vec2 point_uv;
 
-uniform vec2 screenSize;
-unifrom vec2 subCoords;
-uniform vec2 subSize;
-uniform ve2 objPos;
-uniform vec2 size;
+uniform ivec2 screenSize;
+uniform ivec2 subCoords;
+uniform ivec2 subSize;
+uniform ivec2 objPos;
+uniform ivec2 size;
 
 out vec2 uv;
 
 void main() {
-    gl_Position = point_location;
+    gl_Position = vec4(
+        vec2(2, -2) *
+        (objPos + point_location) / screenSize
+        + vec2(-1, 1),
+        0, 1);
+    uv = point_uv;
 }
