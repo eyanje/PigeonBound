@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 
+#include "audio.hpp"
 #include "defines.h"
 
 MenuGameMode::MenuGameMode()
@@ -15,7 +16,8 @@ arrow("sprites/title/title.png") {
 }
 
 MenuGameMode::~MenuGameMode() {
-
+    stopMusic();
+    freeMusic("audio/title.ogg");
 }
 
 void MenuGameMode::processEvent(SDL_Event event) {

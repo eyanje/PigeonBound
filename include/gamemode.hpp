@@ -20,7 +20,6 @@ class TitleGameMode : public GameMode {
     private:
         bool transition;
         Sprite background;
-        Mix_Music *bgMusic;
     public:
         TitleGameMode();
         ~TitleGameMode();
