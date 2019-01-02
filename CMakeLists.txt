@@ -11,6 +11,9 @@ if (WIN32)
 	include_directories(${PROJECT_NAME} SDL2-2.0.9/include)
 	link_directories(${PROJECT_NAME} SDL2-2.0.9/build-windows)
 
+	include_directories(${PROJECT_NAME} SDL2_mixer-2.0.4-windows/i686-w64-mingw32/include)
+	link_directories(${PROJECT_NAME} SDL2_mixer-2.0.4-windows/i686-w64-mingw32/lib)
+
 	include_directories(${PROJECT_NAME} stb)
 endif (WIN32)
 
@@ -22,5 +25,5 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} mingw32)
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2)
+target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_mixer)
 target_link_libraries(${PROJECT_NAME} opengl32 glu32 glew32)
