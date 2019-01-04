@@ -16,6 +16,9 @@ if (WIN32)
 
 	include_directories(${PROJECT_NAME} stb)
 
+	include_directories(${PROJECT_NAME} freetype-2.9.1/include)
+	link_directories(${PROJECT_NAME} freetype-2.9.1/build-windows)
+
 	SET (CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,windows)
 	SET (CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_RELEASE} -mwindows)
 
@@ -30,4 +33,5 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} mingw32)
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_mixer)
+target_link_libraries(${PROJECT_NAME} freetype)
 target_link_libraries(${PROJECT_NAME} opengl32 glu32 glew32)

@@ -7,6 +7,7 @@
 
 #include "defines.h"
 #include "gamemode.hpp"
+#include "ui.hpp"
 
 SDL_Window *window = nullptr;
 GameMode *gameMode = nullptr;
