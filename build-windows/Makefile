@@ -38,19 +38,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = C:\Users\eyanj\programming\cmake-3.13.2-win64-x64\bin\cmake.exe
+CMAKE_COMMAND = "C:\Program Files\CMake\bin\cmake.exe"
 
 # The command to remove a file.
-RM = C:\Users\eyanj\programming\cmake-3.13.2-win64-x64\bin\cmake.exe -E remove -f
+RM = "C:\Program Files\CMake\bin\cmake.exe" -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\eyanj\programming\PigeonBound
+CMAKE_SOURCE_DIR = C:\Users\admin\programming\PigeonBound
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\eyanj\programming\PigeonBound\build-windows
+CMAKE_BINARY_DIR = C:\Users\admin\programming\PigeonBound\build-windows
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -58,7 +58,7 @@ CMAKE_BINARY_DIR = C:\Users\eyanj\programming\PigeonBound\build-windows
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	C:\Users\eyanj\programming\cmake-3.13.2-win64-x64\bin\cmake.exe -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	"C:\Program Files\CMake\bin\cmake.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -69,7 +69,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	C:\Users\eyanj\programming\cmake-3.13.2-win64-x64\bin\cmake-gui.exe -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	"C:\Program Files\CMake\bin\cmake-gui.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -79,9 +79,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\eyanj\programming\PigeonBound\build-windows\CMakeFiles C:\Users\eyanj\programming\PigeonBound\build-windows\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\admin\programming\PigeonBound\build-windows\CMakeFiles C:\Users\admin\programming\PigeonBound\build-windows\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\eyanj\programming\PigeonBound\build-windows\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\admin\programming\PigeonBound\build-windows\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -122,6 +122,87 @@ PigeonBound/fast:
 	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/build
 .PHONY : PigeonBound/fast
 
+src/audio.obj: src/audio.cpp.obj
+
+.PHONY : src/audio.obj
+
+# target to build an object file
+src/audio.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/audio.cpp.obj
+.PHONY : src/audio.cpp.obj
+
+src/audio.i: src/audio.cpp.i
+
+.PHONY : src/audio.i
+
+# target to preprocess a source file
+src/audio.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/audio.cpp.i
+.PHONY : src/audio.cpp.i
+
+src/audio.s: src/audio.cpp.s
+
+.PHONY : src/audio.s
+
+# target to generate assembly for a file
+src/audio.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/audio.cpp.s
+.PHONY : src/audio.cpp.s
+
+src/menugamemode.obj: src/menugamemode.cpp.obj
+
+.PHONY : src/menugamemode.obj
+
+# target to build an object file
+src/menugamemode.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/menugamemode.cpp.obj
+.PHONY : src/menugamemode.cpp.obj
+
+src/menugamemode.i: src/menugamemode.cpp.i
+
+.PHONY : src/menugamemode.i
+
+# target to preprocess a source file
+src/menugamemode.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/menugamemode.cpp.i
+.PHONY : src/menugamemode.cpp.i
+
+src/menugamemode.s: src/menugamemode.cpp.s
+
+.PHONY : src/menugamemode.s
+
+# target to generate assembly for a file
+src/menugamemode.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/menugamemode.cpp.s
+.PHONY : src/menugamemode.cpp.s
+
+src/opengl_wrappers.obj: src/opengl_wrappers.cpp.obj
+
+.PHONY : src/opengl_wrappers.obj
+
+# target to build an object file
+src/opengl_wrappers.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/opengl_wrappers.cpp.obj
+.PHONY : src/opengl_wrappers.cpp.obj
+
+src/opengl_wrappers.i: src/opengl_wrappers.cpp.i
+
+.PHONY : src/opengl_wrappers.i
+
+# target to preprocess a source file
+src/opengl_wrappers.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/opengl_wrappers.cpp.i
+.PHONY : src/opengl_wrappers.cpp.i
+
+src/opengl_wrappers.s: src/opengl_wrappers.cpp.s
+
+.PHONY : src/opengl_wrappers.s
+
+# target to generate assembly for a file
+src/opengl_wrappers.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/opengl_wrappers.cpp.s
+.PHONY : src/opengl_wrappers.cpp.s
+
 src/pigeonbound.obj: src/pigeonbound.cpp.obj
 
 .PHONY : src/pigeonbound.obj
@@ -149,6 +230,87 @@ src/pigeonbound.cpp.s:
 	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/pigeonbound.cpp.s
 .PHONY : src/pigeonbound.cpp.s
 
+src/sprite.obj: src/sprite.cpp.obj
+
+.PHONY : src/sprite.obj
+
+# target to build an object file
+src/sprite.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/sprite.cpp.obj
+.PHONY : src/sprite.cpp.obj
+
+src/sprite.i: src/sprite.cpp.i
+
+.PHONY : src/sprite.i
+
+# target to preprocess a source file
+src/sprite.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/sprite.cpp.i
+.PHONY : src/sprite.cpp.i
+
+src/sprite.s: src/sprite.cpp.s
+
+.PHONY : src/sprite.s
+
+# target to generate assembly for a file
+src/sprite.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/sprite.cpp.s
+.PHONY : src/sprite.cpp.s
+
+src/titlegamemode.obj: src/titlegamemode.cpp.obj
+
+.PHONY : src/titlegamemode.obj
+
+# target to build an object file
+src/titlegamemode.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/titlegamemode.cpp.obj
+.PHONY : src/titlegamemode.cpp.obj
+
+src/titlegamemode.i: src/titlegamemode.cpp.i
+
+.PHONY : src/titlegamemode.i
+
+# target to preprocess a source file
+src/titlegamemode.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/titlegamemode.cpp.i
+.PHONY : src/titlegamemode.cpp.i
+
+src/titlegamemode.s: src/titlegamemode.cpp.s
+
+.PHONY : src/titlegamemode.s
+
+# target to generate assembly for a file
+src/titlegamemode.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/titlegamemode.cpp.s
+.PHONY : src/titlegamemode.cpp.s
+
+src/ui.obj: src/ui.cpp.obj
+
+.PHONY : src/ui.obj
+
+# target to build an object file
+src/ui.cpp.obj:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/ui.cpp.obj
+.PHONY : src/ui.cpp.obj
+
+src/ui.i: src/ui.cpp.i
+
+.PHONY : src/ui.i
+
+# target to preprocess a source file
+src/ui.cpp.i:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/ui.cpp.i
+.PHONY : src/ui.cpp.i
+
+src/ui.s: src/ui.cpp.s
+
+.PHONY : src/ui.s
+
+# target to generate assembly for a file
+src/ui.cpp.s:
+	$(MAKE) -f CMakeFiles\PigeonBound.dir\build.make CMakeFiles/PigeonBound.dir/src/ui.cpp.s
+.PHONY : src/ui.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -158,9 +320,27 @@ help:
 	@echo ... rebuild_cache
 	@echo ... PigeonBound
 	@echo ... edit_cache
+	@echo ... src/audio.obj
+	@echo ... src/audio.i
+	@echo ... src/audio.s
+	@echo ... src/menugamemode.obj
+	@echo ... src/menugamemode.i
+	@echo ... src/menugamemode.s
+	@echo ... src/opengl_wrappers.obj
+	@echo ... src/opengl_wrappers.i
+	@echo ... src/opengl_wrappers.s
 	@echo ... src/pigeonbound.obj
 	@echo ... src/pigeonbound.i
 	@echo ... src/pigeonbound.s
+	@echo ... src/sprite.obj
+	@echo ... src/sprite.i
+	@echo ... src/sprite.s
+	@echo ... src/titlegamemode.obj
+	@echo ... src/titlegamemode.i
+	@echo ... src/titlegamemode.s
+	@echo ... src/ui.obj
+	@echo ... src/ui.i
+	@echo ... src/ui.s
 .PHONY : help
 
 
