@@ -19,7 +19,7 @@ if (WIN32)
 	include_directories(${PROJECT_NAME} freetype-2.9.1/include)
 	link_directories(${PROJECT_NAME} freetype-2.9.1/build-windows)
 
-	SET (CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,windows)
+	SET (CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,windows -static-libgcc -static-libstdc++)
 	SET (CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_RELEASE} -mwindows)
 
 endif (WIN32)
