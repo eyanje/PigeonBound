@@ -18,6 +18,8 @@ class Buffer {
         std::vector<char> data;
     public:
         Buffer(const GLenum target);
+        Buffer(const Buffer &buffer);
+        Buffer(Buffer &&buffer);
         ~Buffer();
         void bind() const;
         GLuint getId() const;
@@ -31,6 +33,8 @@ class VAO {
         Buffer vbo;
     public:
         VAO();
+        VAO(const VAO &vao);
+        VAO(VAO &&vao);
         ~VAO();
         GLuint getId() const;
         void setVertexData(const void *data, const unsigned int size);
@@ -45,6 +49,8 @@ class Texture {
         int bytesPerPixel;
     public:
         Texture(const std::string path);
+        Texture(const Texture &texture);
+        Texture(Texture &&texture);
         ~Texture();
         GLuint getId() const;
 
@@ -57,8 +63,12 @@ class Texture {
 class Shader {
     private:
         GLuint id;
+        const std::string path;
+        const GLenum shaderType;
     public:
         Shader(const std::string path, GLenum shaderType);
+        Shader(const Shader &shader);
+        Shader(Shader &&shader);
         ~Shader();
         GLuint getId() const;
 
@@ -73,6 +83,8 @@ class Program {
     public:
         Program();
         Program(std::string vertexShaderPath, std::string fragmentShaderPath);
+        Program(const Program &program);
+        Program(Program &&program);
         ~Program();
         void attachShader(Shader &shader);
         void linkProgram();

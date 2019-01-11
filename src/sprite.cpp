@@ -11,11 +11,11 @@
 #include "defines.h"
 
 Image::Image(const std::string path)
-: subX(0), subY(0),
+: path(path), subX(0), subY(0),
+texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
-texture(path),
 subWidth(texture.getWidth()),
 subHeight(texture.getHeight())
 {
@@ -41,14 +41,15 @@ subHeight(texture.getHeight())
     };
     elementBuffer.setData(indices, sizeof(indices));
 
+    std::cout << "Created image at " << path << std::endl;
 }
 
 Image::Image(const std::string path, const unsigned int width, const unsigned int height)
 : subX(0), subY(0),
+texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
-texture(path),
 subWidth(width),
 subHeight(height)
 {
@@ -73,16 +74,18 @@ subHeight(height)
         0, 2, 3
     };
     elementBuffer.setData(indices, sizeof(indices));
+    
+    std::cout << "Created image at " << path << " with dimensions " << width << " " << height << std::endl;
 }
 
 Image::Image(const std::string path,
 const unsigned int xOffset, const unsigned int yOffset,
 const unsigned int width, const unsigned int height)
 : subX(xOffset), subY(yOffset),
+texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
-texture(path),
 subWidth(width),
 subHeight(height)
 {
@@ -107,6 +110,26 @@ subHeight(height)
         0, 2, 3
     };
     elementBuffer.setData(indices, sizeof(indices));
+
+    std::cout << "Created image " << path
+        << " location " << xOffset << " " << yOffset
+        << " dimensions " << width << " " << height << std::endl;
+}
+
+// Move constructor
+Image::Image(Image&& image)
+: subX(image.subX), subY(image.subY),
+texture(std::move(image.texture)),
+uvBuffer(std::move(image.uvBuffer)),
+elementBuffer(image.elementBuffer),
+program(std::move(image.program)),
+vao(std::move(image.vao)),
+subWidth(image.subWidth),
+subHeight(image.subHeight) {
+}
+
+Image::~Image() {
+    std::cout << "Deleted image " << path << std::endl;
 }
 
 void Image::render(const int x, const int y) const {
@@ -193,11 +216,20 @@ Image &Animation::getCurrentImage() {
 }
 
 Image &Animation::operator[](const int frame) {
-    return frames[frame];
+    return frames.at(frame);
+}
+
+Animation::Animation() {
+    std::cout << "Created animation" << std::endl;
+}
+
+Animation::~Animation() {
+    std::cout << "Deleted animation" << std::endl;
 }
 
 void Animation::addFrame(const unsigned int length, const std::string path) {
-    frames.emplace_back(path);
+    Image const &temp = frames.emplace_back(path);
+    std::cout << "Added frame " << path << std::endl;
     frameLengths.push_back(length);
 }
 
@@ -236,7 +268,7 @@ Sprite::Sprite(const std::string path) {
         std::cerr << "Cannot open image file " << path << std::endl;
     }
 
-    Animation* currAnimation_p = nullptr;
+    Animation *currAnimation_p = nullptr;
     for (std::string line; std::getline(file, line);) {
         std::istringstream tokenStream(line);
         char type;
@@ -258,6 +290,8 @@ Sprite::Sprite(const std::string path) {
 
                     if (!currAnimation_p) {
                         std::cout << "Could not set currAnimation_p to " << name << std::endl; 
+                    } else {
+                        std::cout << "Created animation " << name << std::endl;
                     }
                     break;
             }
@@ -277,6 +311,7 @@ Sprite::Sprite(const std::string path) {
                 // Create image of just length and path
                 if (tokenStream.eof()) {
                     currAnimation_p->addFrame(length, path);
+                    std::cout << "Added frame at " << path << std::endl;;
                     break;
                 }
 
@@ -296,47 +331,54 @@ Sprite::Sprite(const std::string path) {
                 tokenStream >> t2;
                 tokenStream >> t3;
                 currAnimation_p->addFrame(length, path, t0, t1, t2, t3);
+
                 break;
             }
         }
+        std::cout << "Processed line " << line << std::endl;
     }
+    file.close();
+    std::cout << "Created title at " << path << std::endl;
 }
 
 void Sprite::render(const int x, const int y) const {
-    if (animations.find(currentAnimation) == animations.end()) {
+    auto const curr = animations.find(currentAnimation);
+    if (curr == animations.end()) {
         std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
         std::cerr << "Animation list: ";
-        for (auto pair : animations) {
+        for (auto const &pair : animations) {
             std::cout << pair.first << " ";
         }
         std::cout << std::endl;
     } else {
-        animations.at(currentAnimation).render(x, y);
+        curr->second.render(x, y);
     }
 }
 
 void Sprite::render(const int x, const int y, const int width, const int height) const {
-    if (animations.find(currentAnimation) == animations.end()) {
+    auto const curr = animations.find(currentAnimation);
+    if (curr == animations.end()) {
         std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
         std::cerr << "Animation list: ";
-        for (auto pair : animations) {
+        for (auto const &pair : animations) {
             std::cout << pair.first << " ";
         }
         std::cout << std::endl;
     } else {
-        animations.at(currentAnimation).render(x, y, width, height);
+        curr->second.render(x, y, width, height);
     }
 }
 
 void Sprite::tick() {
-    if (animations.find(currentAnimation) == animations.end()) {
+    auto const curr = animations.find(currentAnimation);
+    if (curr == animations.end()) {
         std::cerr << "Animation " << currentAnimation << " not found" << std::endl;
         std::cerr << "Animation list: ";
-        for (auto pair : animations) {
+        for (auto const &pair : animations) {
             std::cout << pair.first << " ";
         }
         std::cout << std::endl;
     } else {
-        animations.at(currentAnimation).tick();
+        curr->second.tick();
     }
 }

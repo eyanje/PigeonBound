@@ -11,7 +11,7 @@
 MenuGameMode::MenuGameMode()
 : selection(0),
 transition(false),
-arrow("sprites/title/title.png") {
+arrow("sprites/thatg.png") {
 
 }
 
@@ -67,5 +67,5 @@ void MenuGameMode::update() {
 void MenuGameMode::render() const {
     glClearColor(0, 1, 0.5, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-    arrow.render(0, selection * HEIGHT / 2);
+    arrow.render(0, HEIGHT / 2 + selection * 16, 20, 20);
 }

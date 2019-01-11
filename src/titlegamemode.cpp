@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 
+#include "defines.h"
 #include "audio.hpp"
 
 TitleGameMode::TitleGameMode()
@@ -35,11 +36,11 @@ GameMode *TitleGameMode::nextGameMode() const {
 }
 
 void TitleGameMode::update() {
-
+    background.tick();
 }
 
 void TitleGameMode::render() const {
     glClearColor(0.5, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-    background.render(0, 0);
+    background.render(0, 0, WIDTH, HEIGHT);
 }

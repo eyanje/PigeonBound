@@ -8,11 +8,12 @@
 
 class Image {
     private:
+        std::string path;
         glw::VAO vao;
+        glw::Texture texture;
         glw::Buffer uvBuffer;
         glw::Buffer elementBuffer;
         glw::Program program;
-        glw::Texture texture;
 
         unsigned int subWidth, subHeight;
         unsigned int subX, subY;
@@ -21,6 +22,9 @@ class Image {
         Image(const std::string path, const unsigned int width, const unsigned int height);
         Image(const std::string path, const unsigned int xOffset, const unsigned int yOffset,
             const unsigned int width, const unsigned int height);
+        Image(Image &&image);
+        ~Image();
+
         void render(const int x, const int y) const;
         void render(const int x, const int y, const int width, const int height) const;
 };
@@ -29,9 +33,12 @@ class Animation {
     private:
         std::vector<Image> frames;
         std::vector<unsigned int> frameLengths;
-        unsigned int frame;
-        unsigned int subFrame;
+        unsigned int frame = 0;
+        unsigned int subFrame = 0;
     public:
+        Animation();
+        ~Animation();
+
         Image &getCurrentImage();
         Image &operator[](const int frame);
 

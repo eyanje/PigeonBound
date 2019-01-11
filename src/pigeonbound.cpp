@@ -72,6 +72,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    FontFace::init();
+
     // Load audio system
 
     int flags = MIX_INIT_OGG;
@@ -88,7 +90,7 @@ int main(int argc, char *argv[]) {
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
         std::cerr << "Failed to open audio: " << Mix_GetError() << std::endl;
         Mix_Quit();
-            
+        
         SDL_GL_DeleteContext(glContext);
         SDL_DestroyWindow(window);
         

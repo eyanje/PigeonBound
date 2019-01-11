@@ -19,6 +19,11 @@ FontFace::FontFace(std::string path)  {
     0, // char_width in 1/64th of points
     16*64,   // char_height in 1/64th of points
     300, 300); // Resolution
+
+    for (char c = 0; c < 256; ++c) {
+        FT_Load_Glyph(face, c, FT_LOAD_DEFAULT | FT_LOAD_RENDER);
+        FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+    }    
 }
 
 void FontFace::init() {

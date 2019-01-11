@@ -4,6 +4,9 @@ project (PigeonBound CXX)
 
 include_directories(${PROJECT_NAME} include)
 
+set (CMAKE_CXX_STANDARD 17)
+set_property (GLOBAL PROPERTY CXX_STANDARD 17)
+
 if (WIN32)
 	include_directories(${PROJECT_NAME} glew-2.1.0/include)
 	link_directories(${PROJECT_NAME} glew-2.1.0/lib)
@@ -27,7 +30,7 @@ endif (WIN32)
 # Add all files in src/
 file (GLOB SOURCES src/*)
 
-SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
