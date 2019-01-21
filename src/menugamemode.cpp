@@ -13,7 +13,7 @@ MenuGameMode::MenuGameMode()
 : selection(0),
 transition(false),
 transitionTimer(0),
-sample("Sample"),
+sample("Sample lorem ipsum text how doth the text run so I wonder? what horrible fate awaits"),
 arrow("sprites/thatg.png") {
 
 }
@@ -75,7 +75,7 @@ void MenuGameMode::render() const {
     glClear(GL_COLOR_BUFFER_BIT);
     arrow.render(0, HEIGHT / 2 + selection * 16, 20, 20);
     
-    sample.render(10, 10, WIDTH);
+    sample.render(10, 10, WIDTH / 2);
     if (transition) {
         // Fade out
     }

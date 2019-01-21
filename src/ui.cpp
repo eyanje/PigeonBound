@@ -180,7 +180,8 @@ int CharBitmap::getHoriAdvance() const {
 
 FT_Library FontFace::library;
 
-FontFace::FontFace(std::string path)  {
+FontFace::FontFace(const std::string path, const int size)
+: size(size) {
     std::cout << "Loading font at " << path << std::endl;
 
     FT_Error error;
@@ -196,17 +197,15 @@ FontFace::FontFace(std::string path)  {
     error = FT_Set_Char_Size(
     face,
     0, // char_width in 1/64th of points
-    16*64,   // char_height in 1/64th of points
+    size << 6, // char_height in 1/64th of points
     64, 64); // Resolution
     if (error) {
         std::cerr << "Error loading font face at " << path << std::endl;
     }
     
-    //FT_Set_Pixel_Sizes(face, 0, 64);
-
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    for (char c = 'A'; c <= 'z'; ++c) {
+    for (char c = ' '; c < 127; ++c) {
         error = FT_Load_Glyph(face, FT_Get_Char_Index(face, c), FT_LOAD_DEFAULT | FT_LOAD_RENDER);
         if (error) {
             std::cout << "Error loading glyph at " << path << std::endl;
@@ -239,13 +238,16 @@ FontFace::FontFace(std::string path)  {
 
 FontFace::FontFace(const FontFace &fontFace)
 : face(fontFace.face),
-bitmaps(fontFace.bitmaps) {
+bitmaps(fontFace.bitmaps),
+size(fontFace.size) {
 }
 
 FontFace::FontFace(FontFace &&fontFace)
 : face(fontFace.face),
-bitmaps(std::move(fontFace.bitmaps)) {
+bitmaps(std::move(fontFace.bitmaps)),
+size(fontFace.size) {
     fontFace.face = nullptr;
+    fontFace.size = 0;
 }
 
 void FontFace::init() {
@@ -282,12 +284,27 @@ void Text::render(const int x, const int y, const int width) const {
     int xLoc = x;
     int yLoc = y;
     //renderChar('a', x, y);
-    for (char c : text) {
+    for (unsigned int i = 0; i < text.size(); ++i) {
+        char c = text[i];
         renderChar(c, xLoc, yLoc);
         xLoc += (faces.at(font).bitmaps.at(c).getHoriAdvance());
-        if (xLoc + (faces.at(font).face->glyph->metrics.width >> 6) > x + width && width) {
-            yLoc += (faces.at(font).face->glyph->advance.y >> 6);
-            xLoc = x;
+
+        // Check to see if the line should break
+        if (c == ' ') {
+            // Represents the left x value of the char at j
+            int nextX = xLoc;
+            // Represents the width of the last character
+            int nextWidth = (faces.at(font).bitmaps.at(c).getWidth());
+            for (unsigned int j = i + 1; j < text.size() && text[j] != ' '; ++j) {
+                char futureC = text[j];
+                nextX += (faces.at(font).bitmaps.at(futureC).getHoriAdvance());
+                nextWidth = faces.at(font).bitmaps.at(futureC).getWidth();
+            }
+            // If the right side of the next word is off the edge
+            if (nextX + nextWidth > x + width) {
+                xLoc = x;
+                yLoc += faces.at(font).size;
+            }
         }
     }
 }

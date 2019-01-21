@@ -52,8 +52,9 @@ struct FontFace {
     static FT_Library library;
     FT_Face face;
     std::map<char, CharBitmap> bitmaps;
+    int size;
 
-    FontFace(std::string path);
+    FontFace(const std::string path, const int size = 16);
     FontFace(const FontFace &fontFace);
     FontFace(FontFace &&fontFace);
     
