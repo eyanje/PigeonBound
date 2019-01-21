@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <GL/glew.h>
+#include <SDL.h>
 #include <SDL_opengl.h>
 
 #include "audio.hpp"
@@ -11,6 +12,8 @@
 MenuGameMode::MenuGameMode()
 : selection(0),
 transition(false),
+transitionTimer(0),
+sample("Sample"),
 arrow("sprites/thatg.png") {
 
 }
@@ -21,6 +24,9 @@ MenuGameMode::~MenuGameMode() {
 }
 
 void MenuGameMode::processEvent(SDL_Event event) {
+    if (transitionTimer > 0) {
+        --transitionTimer;
+    }
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_UP:
@@ -33,13 +39,14 @@ void MenuGameMode::processEvent(SDL_Event event) {
         switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_Z:
                 transition = true;
+                transitionTimer = 30;
                 break;
         }
     }
 }
 
 GameMode *MenuGameMode::nextGameMode() const {
-    if (transition) {
+    if (transition && transitionTimer <= 0) {
         switch (selection) {
             case 0:
                 std::cout << "New Game" << std::endl;
@@ -51,7 +58,6 @@ GameMode *MenuGameMode::nextGameMode() const {
                 std::cout << "Options" << std::endl;
                 break;
         }
-        
         
         SDL_Event quitEvent;
         quitEvent.type = SDL_QUIT;
@@ -68,4 +74,9 @@ void MenuGameMode::render() const {
     glClearColor(0, 1, 0.5, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     arrow.render(0, HEIGHT / 2 + selection * 16, 20, 20);
+    
+    sample.render(10, 10, WIDTH);
+    if (transition) {
+        // Fade out
+    }
 }

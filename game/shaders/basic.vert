@@ -14,7 +14,7 @@ out vec2 uv;
 void main() {
     gl_Position = vec4(
         vec2(2, -2) *
-        (objPos + point_location) / screenSize
+        (objPos + point_location * size / subSize) / screenSize
         + vec2(-1, 1),
         0, 1);
     uv = point_uv;

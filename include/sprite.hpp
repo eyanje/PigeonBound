@@ -9,20 +9,30 @@
 class Image {
     private:
         std::string path;
+
         glw::VAO vao;
         glw::Texture texture;
         glw::Buffer uvBuffer;
         glw::Buffer elementBuffer;
         glw::Program program;
 
-        unsigned int subWidth, subHeight;
-        unsigned int subX, subY;
+        unsigned int subX;
+        unsigned int subY;
+        unsigned int subWidth;
+        unsigned int subHeight;
     public:
         Image(const std::string path);
         Image(const std::string path, const unsigned int width, const unsigned int height);
         Image(const std::string path, const unsigned int xOffset, const unsigned int yOffset,
             const unsigned int width, const unsigned int height);
-        Image(Image &&image);
+        Image(const void *data, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel);
+        Image(const void *data, const unsigned int dataWidth, const unsigned int dataHeight, const unsigned int bytesPerPixel,
+            const unsigned int width, const unsigned int height);
+        Image(const void *data, const unsigned int dataWidth, const unsigned int dataHeight, const unsigned int bytesPerPixel,
+            const unsigned int xOffset, const unsigned int yOffset,
+            const unsigned int width, const unsigned int height);
+        Image(const Image &image);
+        Image(Image &&image) noexcept;
         ~Image();
 
         void render(const int x, const int y) const;

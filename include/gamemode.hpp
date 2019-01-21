@@ -1,10 +1,12 @@
 #ifndef GAMEMODE_HPP
 #define GAMEMODE_HPP
 
+#include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_mixer.h>
 
 #include "sprite.hpp"
+#include "ui.hpp"
 
 class GameMode {
     public:
@@ -33,6 +35,8 @@ class MenuGameMode : public GameMode {
     private:
         int selection;
         bool transition;
+        int transitionTimer;
+        Text sample;
         Image arrow;
     public:
         MenuGameMode();

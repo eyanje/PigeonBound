@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
     window = SDL_CreateWindow("PigeonBound",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        WIDTH,
-        HEIGHT,
+        WIDTH * 3,
+        HEIGHT * 3,
         SDL_WINDOW_OPENGL);
     if (!window) {
         std::cerr << "Failed to create window" << std::endl;
@@ -120,7 +120,6 @@ int main(int argc, char *argv[]) {
         if (error) {
             std::cerr << "Error in main loop " << error << std::endl;
         }
-
         SDL_GL_SwapWindow(window);
 
         SDL_Delay(17);
@@ -136,6 +135,7 @@ int main(int argc, char *argv[]) {
             }
             gameMode->processEvent(event);
         }
+        
     }
 
     if (gameMode) {

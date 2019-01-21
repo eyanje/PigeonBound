@@ -4,6 +4,7 @@
 
 #include <SDL_events.h>
 #include <GL/glew.h>
+#include <SDL_render.h>
 #include <SDL_opengl.h>
 
 #include "defines.h"

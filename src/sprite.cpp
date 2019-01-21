@@ -11,11 +11,12 @@
 #include "defines.h"
 
 Image::Image(const std::string path)
-: path(path), subX(0), subY(0),
+: path(path),
 texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
+subX(0), subY(0),
 subWidth(texture.getWidth()),
 subHeight(texture.getHeight())
 {
@@ -41,15 +42,18 @@ subHeight(texture.getHeight())
     };
     elementBuffer.setData(indices, sizeof(indices));
 
-    std::cout << "Created image at " << path << std::endl;
 }
 
+/**
+ * Create an image from the specified path with the specified crop
+*/
 Image::Image(const std::string path, const unsigned int width, const unsigned int height)
-: subX(0), subY(0),
+: path(path),
 texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
+subX(0), subY(0),
 subWidth(width),
 subHeight(height)
 {
@@ -74,18 +78,20 @@ subHeight(height)
         0, 2, 3
     };
     elementBuffer.setData(indices, sizeof(indices));
-    
-    std::cout << "Created image at " << path << " with dimensions " << width << " " << height << std::endl;
 }
 
+
+/**
+ * Create an image from the specified data with the specified crop
+*/
 Image::Image(const std::string path,
 const unsigned int xOffset, const unsigned int yOffset,
 const unsigned int width, const unsigned int height)
-: subX(xOffset), subY(yOffset),
-texture(path),
+: path(path), texture(path),
 uvBuffer(GL_ARRAY_BUFFER),
 elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
 program("shaders/basic.vert", "shaders/basic.frag"),
+subX(xOffset), subY(yOffset),
 subWidth(width),
 subHeight(height)
 {
@@ -111,19 +117,110 @@ subHeight(height)
     };
     elementBuffer.setData(indices, sizeof(indices));
 
-    std::cout << "Created image " << path
-        << " location " << xOffset << " " << yOffset
-        << " dimensions " << width << " " << height << std::endl;
+}
+
+// No x and y offset
+Image::Image(const void *data,
+const unsigned int width, const unsigned int height,
+const unsigned int bytesPerPixel)
+: texture(data, width, height, bytesPerPixel),
+uvBuffer(GL_ARRAY_BUFFER),
+elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
+program("shaders/basic.vert", "shaders/basic.frag"),
+subX(0), subY(0),
+subWidth(width),
+subHeight(height)
+{
+    unsigned int vertices[] {
+        width, 0,
+        0, 0,
+        0, height,
+        height, height
+    };
+    vao.setVertexData(vertices, sizeof(vertices));
+
+    constexpr float uvs[] {
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1
+    };
+    uvBuffer.setData(uvs, sizeof(uvs));
+
+    constexpr unsigned char indices[] {
+        0, 1, 2,
+        0, 2, 3
+    };
+    elementBuffer.setData(indices, sizeof(indices));
+}
+
+// With x and y offset
+Image::Image(const void *data,
+const unsigned int dataWidth, const unsigned int dataHeight,
+const unsigned int bytesPerPixel,
+const unsigned int width, const unsigned int height)
+: Image(data, dataWidth, dataHeight, bytesPerPixel,
+0, 0, width, height)
+{}
+
+// With x and y offset
+Image::Image(const void *data,
+const unsigned int dataWidth, const unsigned int dataHeight,
+const unsigned int bytesPerPixel,
+const unsigned int xOffset, const unsigned int yOffset,
+const unsigned int width, const unsigned int height)
+: texture(data, dataWidth, dataHeight, bytesPerPixel),
+uvBuffer(GL_ARRAY_BUFFER),
+elementBuffer(GL_ELEMENT_ARRAY_BUFFER),
+program("shaders/basic.vert", "shaders/basic.frag"),
+subX(xOffset), subY(yOffset),
+subWidth(width),
+subHeight(height)
+{
+    unsigned int vertices[] {
+        width, 0,
+        0, 0,
+        0, height,
+        height, height
+    };
+    vao.setVertexData(vertices, sizeof(vertices));
+
+    constexpr float uvs[] {
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1
+    };
+    uvBuffer.setData(uvs, sizeof(uvs));
+
+    constexpr unsigned char indices[] {
+        0, 1, 2,
+        0, 2, 3
+    };
+    elementBuffer.setData(indices, sizeof(indices));
+
+}
+
+// Copy constructor
+Image::Image(const Image &image)
+: vao(image.vao),
+texture(image.texture),
+uvBuffer(image.uvBuffer),
+elementBuffer(elementBuffer),
+program(image.program),
+subX(image.subX), subY(image.subY),
+subWidth(image.subWidth), subHeight(image.subHeight) {
+
 }
 
 // Move constructor
-Image::Image(Image&& image)
-: subX(image.subX), subY(image.subY),
+Image::Image(Image&& image) noexcept
+: vao(std::move(image.vao)),
 texture(std::move(image.texture)),
 uvBuffer(std::move(image.uvBuffer)),
 elementBuffer(image.elementBuffer),
 program(std::move(image.program)),
-vao(std::move(image.vao)),
+subX(image.subX), subY(image.subY),
 subWidth(image.subWidth),
 subHeight(image.subHeight) {
 }
@@ -220,7 +317,6 @@ Image &Animation::operator[](const int frame) {
 }
 
 Animation::Animation() {
-    std::cout << "Created animation" << std::endl;
 }
 
 Animation::~Animation() {
@@ -228,8 +324,7 @@ Animation::~Animation() {
 }
 
 void Animation::addFrame(const unsigned int length, const std::string path) {
-    Image const &temp = frames.emplace_back(path);
-    std::cout << "Added frame " << path << std::endl;
+    frames.emplace_back(path);
     frameLengths.push_back(length);
 }
 
@@ -290,8 +385,6 @@ Sprite::Sprite(const std::string path) {
 
                     if (!currAnimation_p) {
                         std::cout << "Could not set currAnimation_p to " << name << std::endl; 
-                    } else {
-                        std::cout << "Created animation " << name << std::endl;
                     }
                     break;
             }
@@ -311,7 +404,6 @@ Sprite::Sprite(const std::string path) {
                 // Create image of just length and path
                 if (tokenStream.eof()) {
                     currAnimation_p->addFrame(length, path);
-                    std::cout << "Added frame at " << path << std::endl;;
                     break;
                 }
 
@@ -335,10 +427,8 @@ Sprite::Sprite(const std::string path) {
                 break;
             }
         }
-        std::cout << "Processed line " << line << std::endl;
     }
     file.close();
-    std::cout << "Created title at " << path << std::endl;
 }
 
 void Sprite::render(const int x, const int y) const {

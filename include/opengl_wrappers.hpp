@@ -15,11 +15,12 @@ class Buffer {
         GLuint id;
         GLenum target;
         // C++ void*
-        std::vector<char> data;
+        std::vector<unsigned char> data;
     public:
         Buffer(const GLenum target);
+        Buffer(const GLenum target, const void *data, const unsigned int size);
         Buffer(const Buffer &buffer);
-        Buffer(Buffer &&buffer);
+        Buffer(Buffer &&buffer) noexcept;
         ~Buffer();
         void bind() const;
         GLuint getId() const;
@@ -34,7 +35,7 @@ class VAO {
     public:
         VAO();
         VAO(const VAO &vao);
-        VAO(VAO &&vao);
+        VAO(VAO &&vao) noexcept;
         ~VAO();
         GLuint getId() const;
         void setVertexData(const void *data, const unsigned int size);
@@ -49,8 +50,9 @@ class Texture {
         int bytesPerPixel;
     public:
         Texture(const std::string path);
+        Texture(const void *data, int width, int height, int bytesPerPixel);
         Texture(const Texture &texture);
-        Texture(Texture &&texture);
+        Texture(Texture &&texture) noexcept;
         ~Texture();
         GLuint getId() const;
 
@@ -68,7 +70,7 @@ class Shader {
     public:
         Shader(const std::string path, GLenum shaderType);
         Shader(const Shader &shader);
-        Shader(Shader &&shader);
+        Shader(Shader &&shader) noexcept;
         ~Shader();
         GLuint getId() const;
 
@@ -84,16 +86,18 @@ class Program {
         Program();
         Program(std::string vertexShaderPath, std::string fragmentShaderPath);
         Program(const Program &program);
-        Program(Program &&program);
+        Program(Program &&program) noexcept;
         ~Program();
         void attachShader(Shader &shader);
         void linkProgram();
         void use() const;
 
-        GLuint getUniformLocation(const std::string name);
+        GLuint getUniformLocation(const std::string name) noexcept;
         GLuint getUniformLocation(const std::string name) const;
         void uniform1i(const std::string location, const int v0) const;
         void uniform2i(const std::string location, const int v0, const int v1) const;
+        void uniform3i(const std::string location, const int v0, const int v1, const int v2) const;
+        void uniform4i(const std::string location, const int v0, const int v1, const int v2, const int v3) const;
 };
 
 }
