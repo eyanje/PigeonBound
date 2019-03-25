@@ -24,6 +24,7 @@ These folders should all be
 - SDL2_mixer-2.0.4
     - SDL2_mixer-2.0.4-windows
 - SDL2-2.0.9
+- stb
 
 ## Compiling
 
