@@ -1,9 +1,0 @@
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/package.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/freetype.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/install/strip.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/package_source.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/install.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/install/local.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/edit_cache.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/rebuild_cache.dir
-C:/Users/admin/programming/PigeonBound/freetype-2.9.1/build-windows/CMakeFiles/list_install_components.dir

@@ -180,8 +180,6 @@ void glw::VAO::bind() const {
 }
 
 glw::Texture::Texture(const std::string path) {
-    std::cout << "Loading texture at " << path << std::endl;
-
     glGenTextures(1, &id);
 
     stbi_uc *imgData = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, 4);
@@ -270,12 +268,19 @@ glw::Texture::~Texture() {
     }
 }
 
-glw::Texture::Texture(const glw::Texture &texture) {
+glw::Texture::Texture(const glw::Texture &texture)
+: id(texture.id),
+width(texture.width),
+height(texture.height),
+bytesPerPixel(texture.bytesPerPixel) {
 
 }
 
 glw::Texture::Texture(glw::Texture &&texture) noexcept
-: id(texture.id) {
+: id(texture.id),
+width(texture.width),
+height(texture.height),
+bytesPerPixel(texture.bytesPerPixel) {
     texture.id = 0;
 }
 
@@ -296,6 +301,10 @@ int glw::Texture::getBytesPerPixel() const {
 }
 
 void glw::Texture::bind() const {
+    if (!glIsTexture(id)) {
+        std::cerr << "Attempting to bind an invalid texture!" << std::endl;
+    }
+
     glBindTexture(GL_TEXTURE_2D, id);
 
     GLenum error;
@@ -473,7 +482,7 @@ void glw::Program::use() const {
     }
 }
 
-GLuint glw::Program::getUniformLocation(const std::string name) {
+GLuint glw::Program::getUniformLocation(const std::string name) noexcept {
     auto cachedLocation = locations.find(name);
     if (cachedLocation == locations.end()) {
         GLint location = glGetUniformLocation(id, name.c_str());

@@ -282,7 +282,7 @@ void Text::renderChar(const char c, const int x, const int y) const {
 
 void Text::render(const int x, const int y, const int width) const {    
     int xLoc = x;
-    int yLoc = y;
+    int yLoc = y - faces.at(font).size;
     //renderChar('a', x, y);
     for (unsigned int i = 0; i < text.size(); ++i) {
         char c = text[i];

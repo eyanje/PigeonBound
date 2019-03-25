@@ -35,6 +35,9 @@ class Image {
         Image(Image &&image) noexcept;
         ~Image();
 
+        unsigned int getWidth() const;
+        unsigned int getHeight() const;
+
         void render(const int x, const int y) const;
         void render(const int x, const int y, const int width, const int height) const;
 };
@@ -49,7 +52,8 @@ class Animation {
         Animation();
         ~Animation();
 
-        Image &getCurrentImage();
+        const Image &getCurrentFrame() const;
+        Image &getCurrentFrame();
         Image &operator[](const int frame);
 
         void addFrame(const unsigned int length, const std::string path);
@@ -61,6 +65,8 @@ class Animation {
         void render(const int x, const int y) const;
         void render(const int x, const int y, const int width, const int height) const;
     
+        // Resets the animation
+        void reset();
         // Increases the subframe by 1
         void tick();
 };
@@ -77,7 +83,10 @@ class Sprite {
         void addAnimation(const std::string, const Animation &a);
 
         std::string getCurrentAnimationName() const;
+        const Animation &getCurrentAnimation() const;
         Animation &getCurrentAnimation();
+
+        void setCurrentAnimation(std::string currentAnimation);
 
         void render(const int x, const int y) const;
         void render(const int x, const int y, const int width, const int height) const;

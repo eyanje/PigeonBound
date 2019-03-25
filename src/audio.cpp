@@ -15,13 +15,16 @@ void playMusic(std::string path) {
             std::cerr << "Failed to open music " << path << std::endl;
         }
     }
+    stopMusic();
     if (Mix_FadeInMusic(AudioLibrary::musicList[path], -1, 100) == -1) {
         std::cerr << "Failed to start music " << path << std::endl;
     }
 }
 
 void stopMusic() {
-    Mix_FadeOutMusic(100);
+    if (Mix_FadeOutMusic(100) == -1) {
+        std::cerr << "Failed to stop music" << std::endl;
+    }
 }
 
 void freeMusic(std::string path) {

@@ -5,6 +5,7 @@
 #include <SDL_events.h>
 #include <SDL_mixer.h>
 
+#include "entity.hpp"
 #include "sprite.hpp"
 #include "ui.hpp"
 
@@ -36,11 +37,28 @@ class MenuGameMode : public GameMode {
         int selection;
         bool transition;
         int transitionTimer;
-        Text sample;
+        Text label1;
+        Text label2;
+        Text label3;
         Image arrow;
     public:
         MenuGameMode();
         ~MenuGameMode();
+        void processEvent(const SDL_Event event);
+        GameMode *nextGameMode() const;
+        void update();
+        void render() const;
+};
+
+class GameGameMode : public GameMode {
+    private:
+        Sprite background;
+        OverworldPlayer player;
+        std::map<SDL_Keycode, bool> keycodes;
+        std::map<SDL_Scancode, bool> scancodes;
+    public:
+        GameGameMode();
+        ~GameGameMode();
         void processEvent(const SDL_Event event);
         GameMode *nextGameMode() const;
         void update();

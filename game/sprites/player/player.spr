@@ -1,0 +1,7 @@
+a stand
+i 1 sprites/player/walk1.png 20 20 50 50
+a walk
+i 20 sprites/player/walk0.png
+i 20 sprites/player/walk1.png
+i 20 sprites/player/walk2.png
+i 20 sprites/player/walk3.png

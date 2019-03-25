@@ -10,6 +10,8 @@
 
 #include "defines.h"
 
+// Issue: the first halves aren't rendered. Why is this?
+
 Image::Image(const std::string path)
 : path(path),
 texture(path),
@@ -61,7 +63,7 @@ subHeight(height)
         width, 0,
         0, 0,
         0, height,
-        height, height
+        width, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
@@ -99,7 +101,7 @@ subHeight(height)
         width, 0,
         0, 0,
         0, height,
-        height, height
+        width, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
@@ -135,7 +137,7 @@ subHeight(height)
         width, 0,
         0, 0,
         0, height,
-        height, height
+        width, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
@@ -181,7 +183,7 @@ subHeight(height)
         width, 0,
         0, 0,
         0, height,
-        height, height
+        width, height
     };
     vao.setVertexData(vertices, sizeof(vertices));
 
@@ -233,6 +235,14 @@ void Image::render(const int x, const int y) const {
     render(x, y, subWidth, subHeight);
 }
 
+unsigned int Image::getWidth() const {
+    return subWidth;
+}
+
+unsigned int Image::getHeight() const {
+    return subHeight;
+}
+
 void Image::render(const int x, const int y,
 const int width, const int height) const {
 
@@ -279,6 +289,7 @@ const int width, const int height) const {
     program.uniform2i("screenSize", WIDTH, HEIGHT);
     program.uniform2i("subCoords", subX, subY);
     program.uniform2i("subSize", subWidth, subHeight);
+    program.uniform2i("texSize", texture.getWidth(), texture.getHeight());
     program.uniform2i("objPos", x, y);
     program.uniform2i("size", width, height);
 
@@ -293,8 +304,6 @@ const int width, const int height) const {
         std::cerr << "Error drawing elements " << error << std::endl;
     }
 
-    // Don't know why but this throws 1280
-    // glDisable(GL_TEXTURE_2D);
     glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -308,7 +317,11 @@ const int width, const int height) const {
     }
 }
 
-Image &Animation::getCurrentImage() {
+const Image &Animation::getCurrentFrame() const {
+    return frames.at(frame);
+}
+
+Image &Animation::getCurrentFrame() {
     return frames.at(frame);
 }
 
@@ -333,6 +346,7 @@ const unsigned int width, const unsigned int height) {
     frames.emplace_back(path, width, height);
     frameLengths.push_back(length);
 }
+
 void Animation::addFrame(const unsigned int length, const std::string path,
 const unsigned int x, const unsigned int y,
 const unsigned int width, const unsigned int height) {
@@ -348,10 +362,15 @@ void Animation::render(const int x, const int y, const int width, const int heig
     frames.at(frame).render(x, y, width, height);
 }
 
+void Animation::reset() {
+    frame = 0;
+    subFrame = 0;
+}
+
 void Animation::tick() {
     // subFrame = (subFrame + 1) % frameLengths[frame];
     // If the subframe is 0
-    if (!(subFrame = ((subFrame + 1) % frameLengths.at(frame)))) {
+    if (!(subFrame = ((subFrame + 1) % frameLengths[frame]))) {
         // Increase the frame number if necessary
         frame = (frame + 1) % frames.size();
     }
@@ -429,6 +448,27 @@ Sprite::Sprite(const std::string path) {
         }
     }
     file.close();
+}
+
+
+std::string Sprite::getCurrentAnimationName() const {
+    return currentAnimation;
+}
+
+const Animation &Sprite::getCurrentAnimation() const {
+    return animations.at(currentAnimation);
+}
+
+Animation &Sprite::getCurrentAnimation() {
+    return animations.at(currentAnimation);
+}
+
+void Sprite::setCurrentAnimation(std::string currentAnimation) {
+    if (this->currentAnimation != currentAnimation
+    && animations.find(currentAnimation) != animations.end()) {
+        this->currentAnimation = currentAnimation;
+        animations.at(currentAnimation).reset();
+    }
 }
 
 void Sprite::render(const int x, const int y) const {
