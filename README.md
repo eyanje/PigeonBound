@@ -12,6 +12,19 @@ git clone https://github.com/eyanje/PigeonBound.git
 ```
 And git will clone all the files into PigeonBound/
 
+### Dependencies
+
+There is a list of dependencies to install.
+Because I suck with git and CMake, I will give them to you as a list.
+
+These folders should all be 
+
+- freetype-2.9.1
+- glew-2.1.0
+- SDL2_mixer-2.0.4
+    - SDL2_mixer-2.0.4-windows
+- SDL2-2.0.9
+
 ## Compiling
 
 ### Windows
@@ -51,7 +64,7 @@ Run
 ```
 .\build
 ```
-to build the game. Gdb will still debug the game.
+to build the game. gdb will still debug the game.
 
 The final executable file can be found in game,
 which can now be moved elsewhere.

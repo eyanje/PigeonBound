@@ -1,1 +1,12 @@
-/build-windows/
+build-windows/
+log.txt
+
+.vscode
+
+freetype-2.9.1/
+
+glew-2.1.0/
+
+SDL2_mixer-2.0.4/
+SDL2_mixer-2.0.4-windows/
+SDL2-2.0.9/

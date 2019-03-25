@@ -30,7 +30,7 @@ endif (WIN32)
 # Add all files in src/
 file (GLOB SOURCES src/*)
 
-SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall")
+SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall -Wno-switch")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
